@@ -12,7 +12,7 @@ export default class APIError extends Error {
         return new APIError(401, 'Unauthorized user');
     }
 
-    static BadRequest(message, errors = []) { // надо использовать где то todo
+    static BadRequest(message, errors = []) {
         return new APIError(400, message, errors);
     }
 }

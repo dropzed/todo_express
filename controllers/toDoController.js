@@ -5,6 +5,11 @@ const prisma = new PrismaClient();
 export const getAllTodos = async (req, res) => {
     try {
         const todos = await prisma.todo.findMany()
+
+        if (!todos) {
+            res.status(401).json({message: "Bad with prisma in api"})
+        }
+
         res.status(200).json(todos)
     } catch (e) {
         res.status(500).json({message: 'Cannot resolve todos', error: e})
@@ -18,6 +23,10 @@ export const getTodoById = async (req, res) => {
         const todo = await prisma.todo.findUnique({
             where: { id: parseInt(id) }
         })
+
+        if (!todo) {
+            res.status(401).json({message: "Bad with prisma in api"})
+        }
 
         res.status(200).json(todo)
     } catch (e) {
@@ -35,6 +44,10 @@ export const createTodo = async (req, res) => {
                 description
             }
         })
+
+        if (!newTodo) {
+            res.status(401).json({message: "Bad with create todo prisma in api"})
+        }
 
         res.status(201).json(newTodo)
     } catch (error) {
@@ -63,6 +76,10 @@ export const updateTodo = async (req, res) => {
             }
         });
 
+        if (!updatedTodo) {
+            res.status(401).json({message: "Bad with update todo prisma in api"})
+        }
+
         res.status(200).json(updatedTodo)
     } catch (e) {
         res.status(500).json({message: 'Cannot update todo', error: e})
@@ -76,6 +93,10 @@ export const deleteTodo = async (req, res) => {
         const existingTodo = await prisma.todo.delete({
             where: { id: parseInt(id) }
         })
+
+        if (!existingTodo) {
+            res.status(401).json({message: "Bad with delete todo prisma in api"})
+        }
 
         res.status(200).json({message: 'Exercise deleted'})
     } catch (e) {

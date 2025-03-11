@@ -6,6 +6,8 @@ import UserService from "../services/userService.js";
 import TokenService from "../services/tokenService.js";
 import TokensService from "../services/userService.js";
 import tokenService from "../services/tokenService.js";
+import {validationResult} from "express-validator";
+import APIError from "../exceptions/apiError.js";
 
 
 const prisma = new PrismaClient();
@@ -13,12 +15,29 @@ const prisma = new PrismaClient();
 class AuthController {
     static async registration(req, res, next) {
         try {
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return next(APIError.BadRequest('Error with validation result', errors.array()));
+            }
+
             const { username, email, password } = req.body;
 
             const user = await UserService.register(username, email, password);
-            const tokens = TokenService.generateTokens({id: user.id});
-            await TokenService.saveToken(user.id, tokens.refreshToken);
 
+            if (!user) {
+                res.status(401).json({message: "Bad with registration user in api"});
+            }
+            const tokens = TokenService.generateTokens({id: user.id});
+
+            if (!tokens) {
+                res.status(401).json({message: "Bad with generate tokens in api"});
+            }
+            const tokenSave = await TokenService.saveToken(user.id, tokens.refreshToken);
+
+            if (!tokenSave) {
+                res.status(401).json({message: "Bad with saving tokens in api"});
+            }
             res.json({...tokens, user, message: "Registration successfully"});
         } catch (e) {
             next(e);
@@ -30,8 +49,21 @@ class AuthController {
             const { email, password } = req.body;
 
             const user = await UserService.authenticate(email, password);
+
+            if (!user) {
+                res.status(401).json({message: "Bad with authentication in api"});
+            }
+
             const tokens = TokenService.generateTokens({id: user.id})
-            await TokenService.saveToken(user.id, tokens.refreshToken);
+
+            if (!tokens) {
+                res.status(401).json({message: "Bad with generate tokens in api"});
+            }
+            const saveToken = await TokenService.saveToken(user.id, tokens.refreshToken);
+
+            if (!saveToken) {
+                res.status(401).json({message: "Bad with save token in api"});
+            }
 
             res.json({...tokens, user, message: "Login successfully"});
         } catch (e) {
@@ -76,8 +108,16 @@ class AuthController {
             const tokens = TokenService.generateTokens({
                 id: user.id,
             })
-            await TokenService.saveToken(user.id, tokens.refreshToken);
 
+            if (!tokens) {
+                return res.status(401).json({message: 'Token not found'});
+            }
+
+            const saveToken = await TokenService.saveToken(user.id, tokens.refreshToken);
+
+            if (!saveToken) {
+                res.status(401).json({message: 'Bad with save token in api'});
+            }
 
             res.json({...tokens, user, message: "Refresh token successfully"});
         } catch (e) {

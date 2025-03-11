@@ -39,7 +39,9 @@ class TokenService {
         })
 
         if (!token) {
-            return null
+            return {
+                message: 'No token found'
+            }
         }
 
         await prisma.token.delete({
@@ -55,7 +57,10 @@ class TokenService {
 
             return userData;
         } catch (e) {
-            return null;
+            return {
+                message: 'Bad to verify access token',
+                error: e
+            }
         }
     }
 
@@ -65,7 +70,10 @@ class TokenService {
 
             return userData
         } catch (e) {
-            return null
+            return {
+                message: 'Invalid refresh token',
+                error: e
+            }
         }
     }
 }
