@@ -124,4 +124,33 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxN
 
 Content-Type: application/json
 
+
+// For private routes
 ###
+POST http://localhost:9298/api/me/todos
+
+Authorization: Bearer <token>
+
+Body: { "title": "Название", "description": "..." }
+
+###
+GET http://localhost:9298/api/me/todos/my
+
+Authorization: Bearer <token>
+
+###
+GET http://localhost:9298/api/me/todos/:id
+
+Authorization: Bearer <token>
+
+###
+PUT http://localhost:9298/api/me/todos/:id
+
+Authorization: Bearer <token>
+
+Body: { "title": "Новое название", "description": "..." }
+
+###
+DELETE http://localhost:9298/api/me/todos/:id
+
+Authorization: Bearer <token>
