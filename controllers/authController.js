@@ -1,10 +1,6 @@
-import * as argon2 from "argon2"
 import {PrismaClient} from "@prisma/client";
-import {verify} from "argon2";
-import jwt from "jsonwebtoken";
 import UserService from "../services/userService.js";
 import TokenService from "../services/tokenService.js";
-import TokensService from "../services/userService.js";
 import tokenService from "../services/tokenService.js";
 import {validationResult} from "express-validator";
 import APIError from "../exceptions/apiError.js";
@@ -21,7 +17,7 @@ class AuthController {
                 return next(APIError.BadRequest('Error with validation result', errors.array()));
             }
 
-            const { username, email, password } = req.body;
+            const {username, email, password} = req.body;
 
             const user = await UserService.register(username, email, password);
 
@@ -46,7 +42,7 @@ class AuthController {
 
     static async login(req, res, next) {
         try {
-            const { email, password } = req.body;
+            const {email, password} = req.body;
 
             const user = await UserService.authenticate(email, password);
 
@@ -59,11 +55,8 @@ class AuthController {
             if (!tokens) {
                 res.status(401).json({message: "Bad with generate tokens in api"});
             }
-            const saveToken = await TokenService.saveToken(user.id, tokens.refreshToken);
 
-            if (!saveToken) {
-                res.status(401).json({message: "Bad with save token in api"});
-            }
+            await TokenService.saveToken(user.id, tokens.refreshToken);
 
             res.json({...tokens, user, message: "Login successfully"});
         } catch (e) {
@@ -73,7 +66,7 @@ class AuthController {
 
     static async logout(req, res, next) {
         try {
-            const { refreshToken } = req.body;
+            const {refreshToken} = req.body;
 
             const token = await TokenService.removeToken(refreshToken);
 
@@ -89,7 +82,7 @@ class AuthController {
 
     static async refresh(req, res, next) {
         try {
-            const { refreshToken } = req.body;
+            const {refreshToken} = req.body;
 
             const userData = tokenService.validateRefreshToken(refreshToken);
 
@@ -98,7 +91,7 @@ class AuthController {
             }
 
             const user = await prisma.user.findUnique({
-                where: { id: userData.id },
+                where: {id: userData.id},
             })
 
             if (!user) {

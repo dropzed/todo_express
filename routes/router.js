@@ -1,8 +1,11 @@
 import express from 'express';
-import {createTodo, deleteTodo, getAllTodos, getTodoById, updateTodo} from "../controllers/toDoController.js";
+import todoController from "../controllers/toDoController.js";
 import {body, validationResult} from "express-validator";
 import authController from "../controllers/authController.js";
 import {authMiddleware} from "../middlewares/authMiddleware.js";
+// import {todoPrivateController} from "../controllers/toDoPrivateController.js";
+import {checkTodoOwnership} from "../middlewares/checkOwnership.js";
+import todoPrivateController from "../controllers/toDoPrivateController.js";
 
 
 const router = express.Router();
@@ -33,10 +36,23 @@ router.get('/refresh', authController.refresh)
 
 
 // todos
-router.post('/todos', authMiddleware, createTodo);
-router.get('/all', authMiddleware, getAllTodos)
-router.get('/:id', authMiddleware, getTodoById)
-router.put('/:id', authMiddleware, updateTodo)
-router.delete('/:id', authMiddleware, deleteTodo)
+router.post('/todos', authMiddleware, todoController.createTodo);
+router.get('/all', authMiddleware, todoController.getAllTodos)
+router.get('/:id', authMiddleware, todoController.getTodoById)
+router.put('/:id', authMiddleware, todoController.updateTodo)
+router.delete('/:id', authMiddleware, todoController.deleteTodo)
+
+
+
+
+// private todos
+router.post('/me/todos', authMiddleware, todoPrivateController.createTodo);
+router.get('/me/todos/my', authMiddleware, todoPrivateController.getMyTodos);
+router.get('/me/todos/:id', authMiddleware, checkTodoOwnership, todoPrivateController.getTodo);
+router.put('/me/todos/:id', authMiddleware, checkTodoOwnership, todoPrivateController.updateTodo);
+router.delete('/me/todos/:id', authMiddleware, checkTodoOwnership, todoPrivateController.deleteTodo);
+
+
+
 
 export default router;
