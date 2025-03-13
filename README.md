@@ -15,9 +15,24 @@ bun run index.js
 This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
 
 
-Чтобы затестить приложение:
+### Запуск через Docker
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/ваш-логин/ваш-репозиторий.git
+   cd ваш-репозиторий
+   ```
+   ```bash
+    cp .env.example .env
+   ```
 
+   ```bash
+    docker-compose up --build
+   ```
 
+___
+
+Вот hhtp запросы, чтобы затестить приложение:
+###
 POST http://localhost:9298/api/register
 
 Content-Type: application/json

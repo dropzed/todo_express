@@ -6,7 +6,10 @@ import {authMiddleware} from "../middlewares/authMiddleware.js";
 // import {todoPrivateController} from "../controllers/toDoPrivateController.js";
 import {checkTodoOwnership} from "../middlewares/checkOwnership.js";
 import todoPrivateController from "../controllers/toDoPrivateController.js";
+import { PrismaClient} from "@prisma/client";
 
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -20,6 +23,15 @@ const validate = (req, res, next) => {
     next()
 }
 
+
+router.get('/health', async (req, res) => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        res.status(200).json({status: "OK", database: 'connected'})
+    } catch (e) {
+        res.status(500).json({status: "error", error: e});
+    }
+})
 
 // jwt auth
 router.post('/register',

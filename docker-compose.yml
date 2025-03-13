@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    command: >
+      sh -c "
+        bunx prisma migrate deploy &&  # Выполнить миграции
+        bun run dev                    # Запустить приложение
+      "
+    ports:
+      - "9298:9298"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/to_do_express?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s  # Время на запуск приложения
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=to_do_express
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:

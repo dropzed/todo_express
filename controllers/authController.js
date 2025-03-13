@@ -29,11 +29,9 @@ class AuthController {
             if (!tokens) {
                 res.status(401).json({message: "Bad with generate tokens in api"});
             }
-            const tokenSave = await TokenService.saveToken(user.id, tokens.refreshToken);
 
-            if (!tokenSave) {
-                res.status(401).json({message: "Bad with saving tokens in api"});
-            }
+            await TokenService.saveToken(user.id, tokens.refreshToken);
+
             res.json({...tokens, user, message: "Registration successfully"});
         } catch (e) {
             next(e);
